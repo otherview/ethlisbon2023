@@ -2,7 +2,7 @@
   <div class="image-palette">
     <div class="image-grid">
       <div v-for="(image, index) in images" :key="index" class="image-item">
-        <img :src="`@/assets/${image}`" :alt="`Image ${index}`">
+        <img :src="image" :alt="`Image ${index}`">
       </div>
     </div>
   </div>
@@ -15,7 +15,7 @@ export default {
     return {
       // This is where you would list your image filenames
       images: [
-        'boat_image.png',
+        '../src/assets/boat_image.png',
       ],
     };
   },
