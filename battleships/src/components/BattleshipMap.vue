@@ -21,20 +21,20 @@
 
     <div class="game-log">
       <h2>Game Log</h2>
-        <!-- loop through log messages in gameLog -->
-        <div class="log-msg" v-for="(log, index) in gameLog" :key="index">
-          {{ log }}
-        </div>
+        <message-log/>
     </div>
   </div>
 </template>
 
 <script>
 // Import the banner image from assets
-import bannerImg from '@/assets/banner.png'; // Adjust the path if necessary
+import bannerImg from '@/assets/banner.png';
+import {useMessageStore} from "@/store/messageStore.js";
+import MessageLog from "@/components/MessageLog.vue"; // Adjust the path if necessary
 
 export default {
   name: 'BattleshipMap',
+  components: {MessageLog},
   setup() {
     return { bannerImg };
   },
@@ -61,9 +61,11 @@ export default {
       if (cell.classList.contains('cell')) {
         const row = cell.dataset.row;
         const col = cell.dataset.col;
+
+        const messageLogStore = useMessageStore();
         let logMsg = `Cell clicked: Row ${row}, Column ${col}`;
+        messageLogStore.addMessage(logMsg);
         console.log(logMsg);
-        this.gameLog.push(logMsg);
       }
     },
   },
@@ -106,15 +108,15 @@ export default {
   cursor: pointer; /* Cursor changes to pointer on hover */
 }
 
-.game-log {
-  height: 30vh; /* Set the height of the game log */
-  overflow-y: scroll; /* Enable vertical scrolling */
-  border: 1px solid #ccc; /* Add a border */
-  padding: 10px; /* Add some padding */
+/*.game-log {*/
+/*  height: 30vh; !* Set the height of the game log *!*/
+/*  overflow-y: scroll; !* Enable vertical scrolling *!*/
+/*  border: 1px solid #ccc; !* Add a border *!*/
+/*  padding: 10px; !* Add some padding *!*/
 
-  /* console appearance, neon green and monospace with dark grey background */
-  background-color: #000;
-  font-family: monospace;
-  color: #0f0;
-}
+/*  !* console appearance, neon green and monospace with dark grey background *!*/
+/*  background-color: #000;*/
+/*  font-family: monospace;*/
+/*  color: #0f0;*/
+/*}*/
 </style>
