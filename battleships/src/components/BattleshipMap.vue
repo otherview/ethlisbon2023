@@ -1,12 +1,5 @@
 <template>
   <div>
-    <div class="top-banner">
-      <img :src="bannerImg" alt="Top Banner" /> <!-- The banner image is now bound to the bannerImg property -->
-    </div>
-    <p>
-      &nbsp;
-    </p>
-
     <div class="grid-map">
       <div class="grid" @click="clickCell($event)">
         <div
@@ -91,7 +84,8 @@ export default {
   display: grid;
   grid-template-columns: repeat(20, 1fr); /* Creates a 20x20 grid */
   grid-gap: 2px; /* Space between cells */
-  width: 100%; /* Grid takes full width of the container */
+  width: 600px;
+  height: 600px;
 }
 
 .cell {
@@ -107,16 +101,4 @@ export default {
   background-color: orange; /* Cell background color on hover */
   cursor: pointer; /* Cursor changes to pointer on hover */
 }
-
-/*.game-log {*/
-/*  height: 30vh; !* Set the height of the game log *!*/
-/*  overflow-y: scroll; !* Enable vertical scrolling *!*/
-/*  border: 1px solid #ccc; !* Add a border *!*/
-/*  padding: 10px; !* Add some padding *!*/
-
-/*  !* console appearance, neon green and monospace with dark grey background *!*/
-/*  background-color: #000;*/
-/*  font-family: monospace;*/
-/*  color: #0f0;*/
-/*}*/
 </style>
