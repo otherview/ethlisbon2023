@@ -167,7 +167,7 @@ export default {
 .grid {
   display: grid;
   grid-template-columns: repeat(20, 1fr); /* Creates a 20x20 grid */
-  grid-gap: 2px; /* Space between cells */
+  grid-gap: 0;
   width: 600px;
   height: 600px;
 }
