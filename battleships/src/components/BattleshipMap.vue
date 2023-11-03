@@ -89,11 +89,6 @@ export default {
     getCell(row, col) {
       let cellIdx = (row * GRID_SIZE) + col;
       const cell = this.cells[cellIdx];
-      if (cell === undefined) {
-        console.log(`cell is undefined for row: ${row}, col: ${col} and cellIdx: ${cellIdx}`);
-      } else {
-        console.log(`cell is defined for row: ${row}, col: ${col} and cellIdx: ${cellIdx}`);
-      }
       return cell;
     },
     clickCell(event) {
@@ -110,31 +105,25 @@ export default {
       }
     },
     hoverCell(event, cell) {
-      console.log(`hovering over cell ${cell.row}, ${cell.col}, state: ${cell.state}`)
       const messageLogStore = useMessageStore();
       if (this.userMode === 'shoot') {
         cell.state = HOVER_SHOOT;
-        messageLogStore.addMessage(`shoot hovering over cell ${cell.row}, ${cell.col}`);
       } else if (this.userMode === 'place') {
         if (this.shipOrientation === 'horizontal') {
           if (cell.col > GRID_SIZE - SHIP_LENGTH) {
             return;
           }
           cell.state = HOVER_PLACE;
-          messageLogStore.addMessage(`place hovering over cell ${cell.row}, ${cell.col}`);
           for (let i = cell.col + 1; i < cell.col + SHIP_LENGTH; i++) {
             this.getCell(cell.row, i).state = HOVER_PLACE;
-            messageLogStore.addMessage(`place hovering over cell ${cell.row}, ${cell.col}`);
           }
         } else {
           if (cell.row > GRID_SIZE - SHIP_LENGTH) {
             return;
           }
           cell.state = HOVER_PLACE;
-          messageLogStore.addMessage(`place hovering over cell ${cell.row}, ${cell.col}`);
           for (let i = cell.row + 1; i < cell.row + SHIP_LENGTH; i++) {
             this.getCell(i, cell.col).state = HOVER_PLACE;
-            messageLogStore.addMessage(`place hovering over cell ${cell.row}, ${cell.col}`);
           }
         }
       }
