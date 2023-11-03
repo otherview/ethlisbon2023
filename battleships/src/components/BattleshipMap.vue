@@ -18,6 +18,14 @@
         ></div>
       </div>
     </div>
+
+    <div class="game-log">
+      <h2>Game Log</h2>
+        <!-- loop through log messages in gameLog -->
+        <div class="log-msg" v-for="(log, index) in gameLog" :key="index">
+          {{ log }}
+        </div>
+    </div>
   </div>
 </template>
 
@@ -33,6 +41,7 @@ export default {
   data() {
     return {
       gridSize: 20,
+      gameLog: [],
     };
   },
   computed: {
@@ -52,7 +61,9 @@ export default {
       if (cell.classList.contains('cell')) {
         const row = cell.dataset.row;
         const col = cell.dataset.col;
-        console.log(`Cell clicked: Row ${row}, Column ${col}`);
+        let logMsg = `Cell clicked: Row ${row}, Column ${col}`;
+        console.log(logMsg);
+        this.gameLog.push(logMsg);
       }
     },
   },
@@ -93,5 +104,17 @@ export default {
 .cell:hover {
   background-color: orange; /* Cell background color on hover */
   cursor: pointer; /* Cursor changes to pointer on hover */
+}
+
+.game-log {
+  height: 30vh; /* Set the height of the game log */
+  overflow-y: scroll; /* Enable vertical scrolling */
+  border: 1px solid #ccc; /* Add a border */
+  padding: 10px; /* Add some padding */
+
+  /* console appearance, neon green and monospace with dark grey background */
+  background-color: #000;
+  font-family: monospace;
+  color: #0f0;
 }
 </style>
