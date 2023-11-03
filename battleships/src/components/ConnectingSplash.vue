@@ -3,6 +3,7 @@
     <div class="top-banner">
       <img :src="bannerImg" alt="Top Banner" /> <!-- The banner image is now bound to the bannerImg property -->
     </div>
+    <meta-mask-connect-button></meta-mask-connect-button>
     <button class="connect-btn">Connect!</button>
   </div>
 </template>
@@ -10,9 +11,11 @@
 <script>
 // Import the banner image from assets
 import bannerImg from '@/assets/banner.png';
+import MetaMaskConnectButton from "@/components/MetaMaskConnectButton.vue";
 
 export default {
   name: 'ConnectingSplash',
+  components: {MetaMaskConnectButton},
   setup() {
     return { bannerImg };
   },

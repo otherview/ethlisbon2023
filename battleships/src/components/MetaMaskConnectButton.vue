@@ -1,14 +1,14 @@
 <template>
-<el-button @click="connectMetamask" size="large" >
-<img src="@/assets/icons/icon_metamask.png" alt="Connect with wallet" class="metamask-icon" />
+<button @click="connectMetamask" size="large" >
+<img src="@/assets/icons/icon_metamask.png" class="metamask-icon" />
 {{ buttonText }}
-</el-button>
+</button>
 </template>
 
 <script>
 import detectEthereumProvider from '@metamask/detect-provider';
-import {useWalletStore} from "@/stores/walletStore";
-import { useMessageStore } from '@/stores/messageStore';
+import {useWalletStore} from "@/store/walletStore";
+import { useMessageStore } from '@/store/messageStore';
 import { ref } from 'vue';
 import Web3listener from "@/lib/web3listener";
 
@@ -40,7 +40,7 @@ export default {
         messageStore.addMessage('Connected to wallet ! Account: ' + accounts[0]);
         buttonText.value = "Connected!"
 
-        new Web3listener(walletStore.signer, "0xe03D05a56d35D7c87Ea0578A27C5d4fdF1C81c63" );
+        // new Web3listener(walletStore.signer, "0xe03D05a56d35D7c87Ea0578A27C5d4fdF1C81c63" );
       } else {
         messageStore.addMessage('Please install MetaMask!');
       }
@@ -69,7 +69,7 @@ export default {
             walletStore.setAddress(accounts[0]);
             messageStore.addMessage('Connected to wallet ! Account: ' + accounts[0]);
             this.buttonText = "Connected!"
-            new Web3listener(walletStore.signer, "0xe03D05a56d35D7c87Ea0578A27C5d4fdF1C81c63" );
+            // new Web3listener(walletStore.signer, "0xe03D05a56d35D7c87Ea0578A27C5d4fdF1C81c63" );
           } else {
             messageStore.addMessage('No wallet connected...')
           }
