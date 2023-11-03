@@ -35,4 +35,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./battleships/dist
-          destination_dir: ./ethlisbon2023/battleships
+          destination_dir: ./battleships
