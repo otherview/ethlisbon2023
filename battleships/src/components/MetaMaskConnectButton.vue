@@ -1,4 +1,4 @@
-template>
+<template>
 <el-button @click="connectMetamask" size="large" >
 <img src="@/assets/icons/icon_metamask.png" alt="Connect with wallet" class="metamask-icon" />
 {{ buttonText }}
