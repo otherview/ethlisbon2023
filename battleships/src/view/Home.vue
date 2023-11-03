@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <connecting-splash v-if="!userConnected"></connecting-splash>
-    <battleship-map v-else></battleship-map>
-  </div>
+  <connecting-splash v-if="!userConnected"></connecting-splash>
+  <battleship-map v-else></battleship-map>
 </template>
 
 <script>
@@ -14,7 +12,7 @@ export default {
   components: {ConnectingSplash, BattleshipMap},
   data() {
     return {
-      userConnected: false,
+      userConnected: true,
     };
   },
 }

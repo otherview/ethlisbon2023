@@ -40,15 +40,11 @@ export default {
   padding: 20px;
   border-radius: 5px;
   width: 100%;
-  max-width: 100vh;
-  max-height: 300px;
+  height: 200px;
+  flex-grow: 1;
   overflow-y: auto;
   font-family: 'Courier New', Courier, monospace;
   box-shadow: inset 0 0 10px #00FF00;
-}
-
-.message {
-  margin-bottom: 10px;
 }
 
 @keyframes typing {
@@ -69,11 +65,11 @@ export default {
 
 .second-message {
   color: #49cc49;
-  text-decoration: underline;
+  opacity: 0.8;
 }
 
 .other-messages {
   color: #3dab3d;
-  text-decoration: line-through;
+  opacity: 0.5;
 }
 </style>
