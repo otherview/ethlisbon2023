@@ -22,9 +22,9 @@ jobs:
         run: npm install
         working-directory: ./battleships
 
-      - name: Write Address to JSON
-        run: |
-          echo '{"address": "${{ github.event.inputs.address }}"}' > ./battleships/src/assets/contract/address.json
+#      - name: Write Address to JSON
+#        run: |
+#          echo '{"address": "${{ github.event.inputs.address }}"}' > ./battleships/src/assets/contract/address.json
 
       - name: Build application
         run: npm run build
