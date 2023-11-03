@@ -16,6 +16,13 @@ export default {
       // This is where you would list your image filenames
       images: [
         '../src/assets/boat_image.png',
+        '../src/assets/boat_image_2.png',
+        '../src/assets/boat_image_3.png',
+        '../src/assets/water_image.png',
+        '../src/assets/water_image_2.png',
+        '../src/assets/missed_shot.png',
+        '../src/assets/missed_shot_2.png',
+        '../src/assets/missed_shot_3.png',
       ],
     };
   },
