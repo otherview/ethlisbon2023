@@ -43,6 +43,33 @@ export const useContractStore = defineStore('contract', {
             }catch (e) {
                 console.log(e)
             }
+        },
+        async placeShip(position, isVertical) {
+            const walletStore = useWalletStore();
+            const messageStore = useMessageStore();
+
+            this.contract = new ethers.Contract(ContractAddress.address, BattleshipJSON.abi, walletStore.signer);
+
+            if (!walletStore.connected()) {
+                messageStore.addMessage("[Error] wallet not connected !");
+                return;
+            }
+
+            try {
+                messageStore.addMessage(`[PlaceShip] Ship Added ${position} - ${isVertical} !`);
+                const tx = await this.contract.joinGame(position, isVertical);
+                const receipt = await tx.wait();
+                console.log(receipt);
+                if (receipt.events[0].args) {
+                    messageStore.addMessage(`[PlaceShip] Successfully placed ship at: ${receipt.events[0].args.position} - IsVertical: ${receipt.events[0].args.isVertical} `);
+                } else {
+                    messageStore.addMessage(`[PlaceShip] Failed to place ship ! !`);
+                }
+
+
+            }catch (e) {
+                console.log(e)
+            }
         }
     }
 })

@@ -90,7 +90,7 @@ export default {
       const cell = this.cells[cellIdx];
       return cell;
     },
-    clickCell(event) {
+    async clickCell(event) {
       const cell = event.target;
       if (cell.classList.contains('cell')) {
         const row = cell.dataset.row;
@@ -99,10 +99,20 @@ export default {
         const messageLogStore = useMessageStore();
         const contractStore = useContractStore();
 
-        const userAction = this.userMode === 'shoot' ? 'Shoot' : `Place ship (${this.shipOrientation})`;
+
+        const userAction = this.userMode === 'shoot' ? 'Shoot' : `PlaceShip`;
+
+        if (userAction === 'Shoot') {
+          messageLogStore.addMessage(`Shoot at - Row: ${row} Column ${col}`);
+          await contractStore.shoot(row, col);
+        } else if (userAction === "PlaceShip") {
+          messageLogStore.addMessage(`Added Boat at - Row: ${row} Column ${col}`);
+          await contractStore.placeShip(row, col, this.shipOrientation);
+        }
+
         const logMsg = `${userAction} at: Row ${row}, Column ${col}`;
         messageLogStore.addMessage(logMsg);
-        contractStore.shoot(row, col);
+        //contractStore.shoot(row, col);
       }
     },
     hoverCell(event, cell) {

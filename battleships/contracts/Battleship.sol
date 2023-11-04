@@ -53,7 +53,7 @@ contract Battleship {
 
         // check if placement is valid
         require(isValidPlacement(position, isVertical), "Invalid ship position");
-       
+
         // create and implement new shipID
         uint256 newShipID = shipIDCounter;
         shipIDCounter = shipIDCounter + 1;
@@ -85,7 +85,7 @@ contract Battleship {
 
     }
 
-    // Check if the placement is valid (we need to check if whole ship is in a grid and 
+    // Check if the placement is valid (we need to check if whole ship is in a grid and
     function isValidPlacement(uint position, bool isVertical) public view returns (bool) {
         // TODO: add ship size if we want different sizes of ships
         // check if the whole ship is inside the grid
@@ -136,7 +136,7 @@ contract Battleship {
             emit PlayerShoots(msg.sender, position, true);
             ShipHit(ships[world[position]], position);
             return true;
-            
+
         } else {
             emit PlayerShoots(msg.sender, position, false);
         }
@@ -174,11 +174,11 @@ contract Battleship {
 
         return false;
     }
-    
+
 
     // Utility function to check if a player is still in the game
     function isPlayerAlive(address player) public view returns (bool) {
-        
+
     }
 
     // Utility function to get the number of active players
@@ -187,6 +187,6 @@ contract Battleship {
 
     // Reset the game (this could be restricted to the owner only)
     function resetGame() public {
-       
+
     }
 }
