@@ -35,6 +35,7 @@ export default {
 
 <style scoped>
 .message-log {
+  color: azure;
   background-color: black;
   padding: 20px;
   border-radius: 5px;

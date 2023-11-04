@@ -49,16 +49,17 @@
 import bannerImg from '@/assets/banner.png';
 import {useMessageStore} from "@/store/messageStore.js";
 import MessageLog from "@/components/MessageLog.vue";
-import {useContractStore} from "@/store/contractStore.js";
+import {useContractStore} from "@/store/contractStore.js"; // Adjust the path if necessary
 import {useEventStore} from "@/store/eventStore.js"; // Adjust the path if necessary
+import {useBattleGridStore} from "@/store/battleGridStore.js";
+import {GRID_SIZE, STATE_HOVER_SHOOT, STATE_HOVER_PLACE, STATE_SHIP, STATE_SHOT} from "@/lib/constants.js";
 
-const GRID_SIZE = 20;
-const SHIP_LENGTH = 3;
-const NEUTRAL = 0;
-const HOVER_SHOOT = 1;
-const HOVER_PLACE = 2;
-const SHIP = 3;
-const SHOT = 4;
+const STATE_CSS_CLASSES = {
+  [STATE_HOVER_SHOOT]: 'highlight shoot',
+  [STATE_HOVER_PLACE]: 'highlight place',
+  [STATE_SHIP]: 'ship',
+  [STATE_SHOT]: 'shot',
+};
 
 export default {
   name: 'BattleshipMap',
@@ -76,7 +77,6 @@ export default {
       cells.push({
         row: this.getRow(i),
         col: this.getCol(i),
-        state: NEUTRAL,
       });
     }
     return {
@@ -93,94 +93,37 @@ export default {
     getCol(index) {
       return index % GRID_SIZE;
     },
-    getCell(row, col) {
-      let cellIdx = (row * GRID_SIZE) + col;
-      const cell = this.cells[cellIdx];
-      return cell;
-    },
     calculateCellClass(cell) {
-      const classes = ['cell'];
-      if (cell.state === HOVER_SHOOT) {
-        classes.push('highlight');
-        classes.push('shoot');
-      } else if (cell.state === HOVER_PLACE) {
-        classes.push('highlight');
-        classes.push('place');
-      } else if (cell.state === SHIP) {
-        classes.push('ship');
-      } else if (cell.state === SHOT) {
-        classes.push('shot');
-      }
-      return classes;
+      const battleGridStore = useBattleGridStore();
+      let cellRenderState = battleGridStore.getCellRenderState(cell.row, cell.col);
+      return `cell ${STATE_CSS_CLASSES[cellRenderState]}`;
     },
     async clickCell(event, cell) {
       const messageLogStore = useMessageStore();
+      const battleGridStore = useBattleGridStore();
       const contractStore = useContractStore();
 
       if (this.userMode === 'shoot') {
         messageLogStore.addMessage(`Shoot at - Row: ${cell.row} Column ${cell.col}`);
         await contractStore.shoot(cell.row, cell.col);
-        cell.state = SHOT;
+        battleGridStore.shoot(cell.row, cell.col)
       } else if (this.userMode === 'place') {
         messageLogStore.addMessage(`Added Boat at - Row: ${cell.row} Column ${cell.col}`);
         await contractStore.placeShip(cell.row, cell.col, this.shipOrientation);
-        cell.state = SHIP;
-        if (this.shipOrientation === 'horizontal') {
-          for (let i = cell.col + 1; i < cell.col + SHIP_LENGTH; i++) {
-            this.getCell(cell.row, i).state = SHIP;
-          }
-        } else {
-          for (let i = cell.row + 1; i < cell.row + SHIP_LENGTH; i++) {
-            this.getCell(i, cell.col).state = SHIP;
-          }
-        }
+        battleGridStore.place(cell.row, cell.col, this.shipOrientation)
       }
-
-      const logMsg = `${userAction} at: Row ${cell.row}, Column ${cell.col}`;
-      messageLogStore.addMessage(logMsg);
-
     },
     hoverCell(event, cell) {
-      const affectedCells = [];
-
-      if (cell.state === SHOT || cell.state === SHIP
-      ) {
-        // don't allow hover on cells that have already been shot or have a ship, they're not valid
-        return;
-      }
+      const battleGridStore = useBattleGridStore();
       if (this.userMode === 'shoot') {
-        cell.state = HOVER_SHOOT;
+        battleGridStore.hoverShoot(cell.row, cell.col);
       } else if (this.userMode === 'place') {
-        if (this.shipOrientation === 'horizontal') {
-          if (cell.col > GRID_SIZE - SHIP_LENGTH) {
-            // don't allow hover on cells that would go off the grid
-            return;
-          }
-          cell.state = HOVER_PLACE;
-          for (let i = cell.col + 1; i < cell.col + SHIP_LENGTH; i++) {
-            // add the hover state to the cells that the ship would occupy
-            this.getCell(cell.row, i).state = HOVER_PLACE;
-          }
-        } else {
-          if (cell.row > GRID_SIZE - SHIP_LENGTH) {
-            // don't allow hover on cells that would go off the grid
-            return;
-          }
-          cell.state = HOVER_PLACE;
-          for (let i = cell.row + 1; i < cell.row + SHIP_LENGTH; i++) {
-            // add the hover state to the cells that the ship would occupy
-            this.getCell(i, cell.col).state = HOVER_PLACE;
-          }
-        }
+        battleGridStore.hoverPlace(cell.row, cell.col, this.shipOrientation);
       }
     },
     clearHover(event, cell) {
-      for (let i = 0; i < this.cells.length; i++) {
-        // clear any hovers
-        if (this.cells[i].state === HOVER_SHOOT || this.cells[i].state === HOVER_PLACE) {
-          this.cells[i].state = NEUTRAL;
-        }
-      }
+      const battleGridStore = useBattleGridStore();
+      battleGridStore.clearHovers();
     },
   },
 };
