@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/pedro/go/src/github.com/otherview/ethlisbon2023/battleships/contracts/Battleship.sol": {
-      "lastModificationDate": 1699040401663,
-      "contentHash": "01729e3ab5f4f233cb264c38767ac6ed",
+      "lastModificationDate": 1699058590555,
+      "contentHash": "353e6f7613e87103bb536a095d3e63f4",
       "sourceName": "contracts/Battleship.sol",
       "solcConfig": {
         "version": "0.8.19",

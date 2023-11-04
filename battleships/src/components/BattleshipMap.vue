@@ -49,7 +49,8 @@
 import bannerImg from '@/assets/banner.png';
 import {useMessageStore} from "@/store/messageStore.js";
 import MessageLog from "@/components/MessageLog.vue";
-import {useContractStore} from "@/store/contractStore.js"; // Adjust the path if necessary
+import {useContractStore} from "@/store/contractStore.js";
+import {useEventStore} from "@/store/eventStore.js"; // Adjust the path if necessary
 
 const GRID_SIZE = 20;
 const SHIP_LENGTH = 3;
@@ -64,6 +65,10 @@ export default {
   components: {MessageLog},
   setup() {
     return { bannerImg };
+  },
+  async mounted() {
+    const eventStore = useEventStore();
+    await eventStore.fetchTransactions();
   },
   data() {
     const cells = [];
