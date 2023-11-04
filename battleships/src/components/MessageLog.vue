@@ -36,15 +36,11 @@ export default {
 <style scoped>
 .message-log {
   background-color: black;
-  color: #00FF00;
   padding: 20px;
   border-radius: 5px;
-  width: 100%;
-  height: 200px;
-  flex-grow: 1;
+  height: 15rem;
   overflow-y: auto;
   font-family: 'Courier New', Courier, monospace;
-  box-shadow: inset 0 0 10px #00FF00;
 }
 
 @keyframes typing {
@@ -56,20 +52,11 @@ export default {
   }
 }
 
-.first-message {
-  color: #00FF00;
-  animation: typing 2s steps(25, end) 0s 1 normal both;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
 .second-message {
-  color: #49cc49;
   opacity: 0.8;
 }
 
 .other-messages {
-  color: #3dab3d;
   opacity: 0.5;
 }
 </style>
