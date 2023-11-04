@@ -13,7 +13,7 @@ import {
 function getShipCoordinates(row, col, orientation, length) {
     const coordinates = [];
     for (let i = 0; i < length; i++) {
-        if (orientation == ORIENTATION_HORIZONTAL) {
+        if (orientation === ORIENTATION_HORIZONTAL) {
             if (col + i >= GRID_SIZE) {
                 return []; // out of bounds
             }
