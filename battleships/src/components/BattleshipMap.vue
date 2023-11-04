@@ -45,10 +45,10 @@
 </template>
 
 <script>
-// Import the banner image from assets
 import bannerImg from '@/assets/banner.png';
 import {useMessageStore} from "@/store/messageStore.js";
-import MessageLog from "@/components/MessageLog.vue"; // Adjust the path if necessary
+import MessageLog from "@/components/MessageLog.vue";
+import {useContractStore} from "@/store/contractStore.js"; // Adjust the path if necessary
 
 const GRID_SIZE = 20;
 const SHIP_LENGTH = 3;
@@ -71,7 +71,6 @@ export default {
         state: NEUTRAL,
       });
     }
-    console.log(cells.length);
     return {
       cells,
       gameLog: [],
@@ -98,10 +97,12 @@ export default {
         const col = cell.dataset.col;
 
         const messageLogStore = useMessageStore();
+        const contractStore = useContractStore();
+
         const userAction = this.userMode === 'shoot' ? 'Shoot' : `Place ship (${this.shipOrientation})`;
         const logMsg = `${userAction} at: Row ${row}, Column ${col}`;
         messageLogStore.addMessage(logMsg);
-        console.log(logMsg);
+        contractStore.shoot(row, col);
       }
     },
     hoverCell(event, cell) {
