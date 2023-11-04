@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Battleship {
+import "hardhat/console.sol";
 
+
+contract Battleship {
     uint constant public GRID_SIZE = 20;
-    uint constant public MAX_SHIPS_PER_PLAYER = 1;
+    uint constant public MAX_SHIPS_PER_PLAYER = 3;
     uint constant public SHIP_SIZE = 3;
-    uint256 public shipIDCounter = 1; // start with 1 to know when it is empty or not.
+    uint256 private shipIDCounter = 1; // start with 1 to know when it is empty or not.
 
 
     // TODO: Currently each ship is of size 3
@@ -19,7 +21,7 @@ contract Battleship {
     }
 
    struct Player {
-        Ship[MAX_SHIPS_PER_PLAYER] ships;
+        uint256[MAX_SHIPS_PER_PLAYER] ships;
         uint shipCount;
         bool isAlive;
     }
@@ -27,10 +29,10 @@ contract Battleship {
     mapping(address => Player) public players;
 
     // position -> ship id
-    mapping(uint => uint256) public world;
+    mapping(uint => uint256) private world;
 
     // shipId -> ship structure
-    mapping(uint256 => Ship) public ships;
+    mapping(uint256 => Ship) private ships;
 
     // Event to represent invalid placement
     event InvalidShipPlacement(address player, uint position);
@@ -39,64 +41,94 @@ contract Battleship {
     event PlayerJoined(address player);
 
     // Event that is emitted when a player shoots
-    event PlayerShoots(address player, uint position, bool hit);
+    event PlayerShoots(address player, uint position, uint hit); // 0 is a miss, 1 is hit already destroyed part of ship, 2 is new hit
 
     // Event that is emitted when a player places a new boat
     event PlayerAddsABoat(address player, uint position, bool isVertical);
 
     // Event that is emitted when a ship is sunk
-    event ShipSunk(address player);
+    event ShipSunk(address player, uint256 shipID);
+
+    // Player tries to join the game. Initialize their data
+    // Player joins the game. This can be called multiple times to add ships, up to MAX_SHIPS_PER_PLAYER.
+    function joinGame() private {
+
+        if (players[msg.sender].isAlive) {
+            return;
+        }
+        // require(!players[msg.sender].isAlive, "Player is already in the game");
+        
+        // Initialize player state
+        players[msg.sender].isAlive = true;
+        players[msg.sender].shipCount = 0;
+
+        emit PlayerJoined(msg.sender);
+    }
+
 
     // Player joins the game
-    function joinGame(uint position, bool isVertical) public {
-        // TODO: Check if player is already in the game
+    function placeAShip(uint _position, bool _isVertical) public {
+        joinGame();
+
+        require(players[msg.sender].isAlive, "Player must join the game first");
+        require(players[msg.sender].shipCount < MAX_SHIPS_PER_PLAYER, "Player has already placed the maximum number of ships");
 
         // check if placement is valid
-        require(isValidPlacement(position, isVertical), "Invalid ship position");
-
+        require(isValidPlacement(_position, _isVertical), "Invalid ship position");
+       
         // create and implement new shipID
         uint256 newShipID = shipIDCounter;
         shipIDCounter = shipIDCounter + 1;
 
-        // create a new ship instance
-        Ship memory newShip = Ship({
-            position: position,
-            isVertical: isVertical,
+        // place new ship in a mapping
+        ships[newShipID] = Ship({
+            position: _position,
+            isVertical: _isVertical,
             hits:  [false, false, false],
             owner: msg.sender,
             shipID : newShipID
         });
 
-        // place new ship in a mapping
-        ships[shipIDCounter] = newShip;
+        // Add shipID to player's list of ships
+        players[msg.sender].ships[players[msg.sender].shipCount] = newShipID;
+        players[msg.sender].shipCount++;
+
+        // get positions of the ship
+        uint[3] memory shipPositions = getShipPositions(newShipID);
 
         // place a ship in the world
-        if (isVertical) {
-            world[position] = newShipID;
-            world[position+GRID_SIZE] = newShipID;
-            world[position+2*GRID_SIZE] = newShipID;
-        } else {
-            world[position] = newShipID;
-            world[position+1] = newShipID;
-            world[position+2] = newShipID;
+        for (uint i = 0; i < shipPositions.length; i++) {
+            world[shipPositions[i]] = newShipID;
+            // console.log("Placing ship to ", shipPositions[i], " with shipID: ", newShipID);
         }
 
-        emit PlayerAddsABoat(msg.sender, position, isVertical);
-
+        emit PlayerAddsABoat(msg.sender, _position, _isVertical);
     }
 
-    // Check if the placement is valid (we need to check if whole ship is in a grid and
-    function isValidPlacement(uint position, bool isVertical) public view returns (bool) {
+    // only for ships of size 3
+    function getShipPositions(uint256 shipID) private view returns (uint[3] memory) {
+        Ship storage s = ships[shipID];
+        if (s.isVertical) {
+            return [s.position, s.position+GRID_SIZE, s.position+2*GRID_SIZE];
+        } else {
+            return [s.position, s.position+1, s.position+2];
+        }
+    }
+
+    // Check if the placement is valid (we need to check if whole ship is in a grid and 
+    function isValidPlacement(uint position, bool isVertical) private view returns (bool) {
         // TODO: add ship size if we want different sizes of ships
         // check if the whole ship is inside the grid
 
         // it is vertical and it is outside of the grid -> return false
-        if(isVertical && position+(SHIP_SIZE-1)*GRID_SIZE > GRID_SIZE*GRID_SIZE) {
+        if (isVertical && ((position + (SHIP_SIZE-1) * GRID_SIZE) >= GRID_SIZE*GRID_SIZE)) {
+            // check if the last part of the ship is outside the grid
             return false;
         }
 
+
         // it is horizontal and it is outside of the frid -> return false
-        if (!isVertical && position+(SHIP_SIZE-1) > GRID_SIZE*GRID_SIZE) {
+        if (!isVertical && (position % GRID_SIZE)+(SHIP_SIZE-1) >= GRID_SIZE) {
             return false;
         }
 
@@ -120,7 +152,8 @@ contract Battleship {
         return true;
     }
 
-    function isShipDestroyed(Ship memory ship) public pure returns (bool) {
+    function isShipDestroyed(uint256 shipID) private view returns (bool) {
+        Ship storage ship = ships[shipID];
         for (uint i = 0; i < ship.hits.length; i++) {
             if (!ship.hits[i]) {
                 return false;
@@ -133,60 +166,54 @@ contract Battleship {
         // check if there is a ship at desired position
         if (world[position] != 0) {
             // we hit a ship
-            emit PlayerShoots(msg.sender, position, true);
-            ShipHit(ships[world[position]], position);
+            // check if this part of the ship was hit before
+            bool newHitOnAShip = ShipHit(world[position], position);
+            // console.log("Is it a new hit: ", newHitOnAShip);
+            emit PlayerShoots(msg.sender, position, newHitOnAShip ? 2 : 1);
             return true;
-
+            
         } else {
-            emit PlayerShoots(msg.sender, position, false);
+            // console.log("missed");
+            emit PlayerShoots(msg.sender, position, 0);
         }
 
         return false;
 
     }
 
-    function ShipHit(Ship memory ship, uint position) public returns (bool) {
-        // x x x x x
-        // x o x x x
-        // x o x x x
-        // x o x x x
-        // x x x x x
+    // returns true if we hit a part of a ship that was not hit before and false if we hit already hitted part
+    function ShipHit(uint256 shipID, uint position) private returns (bool) {
+        uint[3] memory shipPositions = getShipPositions(shipID);
 
-        // ship position = 6
-        // hit position = 16
-        // world size = 5
-        // we want to get index = 2
+        // check which part of ship was hit
+        for (uint i = 0; i < shipPositions.length; i++) {
+            if (position == shipPositions[i]) {
+                // get info where the ship was hit and change its status
+                Ship storage ship = ships[shipID];
 
-        // figure out where the ship was hit and change the hit array accordingly
-        uint hit_index = 0;
-        if (ship.isVertical) {
-            hit_index = (position - ship.position) / GRID_SIZE;
-        } else {
-            hit_index = position - ship.position;
+                // check if hit part of the ship was hit before (we don't count it as a hit)
+                if (ship.hits[i]) {
+                    return false;
+                }
+
+                ship.hits[i] = true;
+                break;
+            }
+        }
+        
+        // check if a ship is destroyed
+        if(isShipDestroyed(shipID)) {
+            // console.log("SHIP IS DESTROYED!");
+            Ship storage ship = ships[shipID];
+            emit ShipSunk(ship.owner, ship.shipID);
+
+            for (uint i = 0; i < shipPositions.length; i++) {
+                delete world[shipPositions[i]];
+            }
+            delete ships[shipID];
         }
 
-        ship.hits[hit_index] = true;
-
-        if(isShipDestroyed(ship)) {
-            emit ShipSunk(ship.owner);
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
-
-    // Utility function to check if a player is still in the game
-    function isPlayerAlive(address player) public view returns (bool) {
-
-    }
-
-    // Utility function to get the number of active players
-    function getActivePlayerCount() public view returns (uint) {
-    }
-
-    // Reset the game (this could be restricted to the owner only)
-    function resetGame() public {
-
-    }
 }
